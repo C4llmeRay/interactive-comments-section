@@ -23,19 +23,6 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  notifications: [
-    {
-      type: String,
-      commentId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Comment',
-      },
-      read: {
-        type: Boolean,
-        default: false,
-      },
-    }
-  ]
 });
 
 const User = mongoose.model("User", userSchema);

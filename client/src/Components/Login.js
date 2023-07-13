@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import axios from "axios";
+import { login } from "../api";
 
 function Login() {
   const navigate = useNavigate();
@@ -11,9 +11,8 @@ function Login() {
     navigate("/signup");
   }
 
-  function login() {
-    axios
-      .post("http://localhost:3005/user/login", { email, password })
+  function handleLogin() {
+    login(email, password)
       .then(({ data }) => {
         if (data.token) {
           localStorage.setItem("token", data.token);
@@ -21,6 +20,9 @@ function Login() {
         } else {
           alert(data.msg);
         }
+      })
+      .catch((error) => {
+        console.error("Error logging in:", error);
       });
   }
 
@@ -30,36 +32,23 @@ function Login() {
       <div className="input-button-container">
         <input
           type="email"
-          placeholder="email"
-          onChange={(e) => {
-            setEmail(e.target.value);
-          }}
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <input
           type="password"
-          placeholder="password"
-          onChange={(e) => {
-            setPassword(e.target.value);
-          }}
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
-        <button
-          className="signup-login-btn"
-          onClick={() => {
-            login();
-          }}
-        >
+        <button className="signup-login-btn" onClick={handleLogin}>
           Login
         </button>
       </div>
       <p className="info-text">
         If you do not have an account{" "}
-        <a
-          className="signup-login-anchor"
-          onClick={() => {
-            toSignup();
-          }}
-        >
-          {" "}
+        <a className="signup-login-anchor" onClick={toSignup}>
           Signup Here
         </a>
       </p>

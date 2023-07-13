@@ -21,6 +21,7 @@ router.delete("/:commentId/reply/:replyId", authMiddleware, commentController.de
 // Edit a reply
 router.put("/:commentId/reply/:replyId", authMiddleware, commentController.editReply);
 
+
 module.exports = router;
 
 

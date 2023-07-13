@@ -16,12 +16,12 @@ const signup = async (req, res) => {
     // Generate a salt and hash the password
     bcrypt.genSalt(10, async (err, salt) => {
       if (err) {
-        return res.status(500).send({ msg: "Failed to create user" });
+        return res.status(500).send({ msg: "Failed to salt" });
       }
 
       bcrypt.hash(password, salt, async (err, hash) => {
         if (err) {
-          return res.status(500).send({ msg: "Failed to create user" });
+          return res.status(500).send({ msg: "Failed to hash" });
         }
 
         // Create the user with name, username, email, and hashed password
@@ -34,7 +34,7 @@ const signup = async (req, res) => {
       });
     });
   } catch (error) {
-    res.status(500).send({ msg: "Failed to create user" });
+    res.status(500).send({ msg: "error" });
   }
 };
 // User login

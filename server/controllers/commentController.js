@@ -1,4 +1,6 @@
 const Comment = require("../models/comment.js");
+const Notification = require("../models/notification");
+
 
 // Get all comments
 const getAllComments = async (req, res) => {
@@ -104,6 +106,15 @@ const postReply = async (req, res) => {
     comment.replies.push(reply);
     await comment.save();
 
+    // Create notification for the comment owner
+    const notification = new Notification({
+      userId: comment.userId, // Comment owner's user ID
+      type: "reply",
+      commentId: comment._id,
+    });
+
+    await notification.save();
+
     res.send({ msg: "Reply posted successfully" });
   } catch (error) {
     res.status(500).send({ msg: "Failed to post reply" });
@@ -157,6 +168,7 @@ const editReply = async (req, res) => {
     res.status(500).send({ msg: "Failed to edit reply" });
   }
 };
+
 
 module.exports = {
   getAllComments,

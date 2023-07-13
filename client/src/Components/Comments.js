@@ -1,100 +1,70 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { getAllComments, addComment, deleteComment, editComment, addReply } from '../api';
 
-function CommentSection() {
+function Comments() {
   const navigate = useNavigate();
-  const [newComment, setNewComment] = useState({
-    content: '',
-    email: '',
-    userId: '',
-    createdAt: Date.now(),
-    upvotes: '',
-    replies: [],
-  });
+  const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState([]);
-  const [user, setUser] = useState({
-    _id: '',
-    email: '',
-  });
+  const [user, setUser] = useState(null);
   const [replyContent, setReplyContent] = useState('');
-  const [editCommentContent, setEditCommentContent] = useState('');
-  const [editCommentId, setEditCommentId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [editCommentId, setEditCommentId] = useState(null);
+  const [editCommentContent, setEditCommentContent] = useState('');
 
   useEffect(() => {
-    if (localStorage.getItem('token')) {
-      axios
-        .post('http://localhost:3005/user/verify', {
-          token: localStorage.getItem('token'),
-        })
-        .then(({ data }) => {
-          if (data.userData._id) {
-            console.log(data.userData);
-            setUser(data.userData);
-            axios
-              .get('http://localhost:3005/comment/' + data.userData._id)
-              .then(({ data }) => {
-                console.log('user comments', data);
-                setComments(data);
-              });
-          } else {
-            navigate('/');
-          }
-        });
-    } else {
+    const token = localStorage.getItem('token');
+    if (!token) {
       navigate('/');
+    } else {
+      fetchComments();
     }
-  }, []);
+  }, [navigate]);
+
+  const fetchComments = () => {
+    getAllComments()
+      .then((response) => {
+        console.log('Comments response:', response);
+        setComments(response.data);
+        if (response.user && response.user._id) {
+          setUser(response.user);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching comments:', error);
+      });
+  };
 
   const handleCommentChange = (event) => {
-    const { name, value } = event.target;
-    setNewComment((prevComment) => ({
-      ...prevComment,
-      [name]: value,
-      userId: user._id,
-    }));
+    setNewComment(event.target.value);
   };
 
   const handleCommentSubmit = (event) => {
     event.preventDefault();
-    console.log(newComment);
-  
-    // Update newComment object with user's email
-    const updatedComment = { ...newComment, email: user.email };
-  
-    axios
-      .post('http://localhost:3005/comment', updatedComment)
+    if (newComment.trim() === '') return;
+
+    const commentData = {
+      content: newComment,
+      email: user.email,
+      createdAt: new Date().toISOString(),
+    };
+
+    addComment(commentData)
       .then(() => {
-        setNewComment((prevComment) => ({
-          ...prevComment,
-          content: '',
-        }));
-        // Fetch the updated comments after successful submission
-        axios
-          .get('http://localhost:3005/comment/' + user._id)
-          .then(({ data }) => {
-            console.log('user comments', data);
-            setComments(data);
-          })
-          .catch((error) => {
-            console.error('Error fetching comments:', error);
-          });
+        setNewComment('');
+        fetchComments();
       })
       .catch((error) => {
-        console.error('Error sending comment data:', error);
+        console.error('Error adding comment:', error);
       });
   };
 
   const handleCommentDelete = (commentId) => {
-    const shouldDelete = window.confirm('Are you sure you want to delete this comment?');
-    if (shouldDelete) {
-      axios
-        .delete(`http://localhost:3005/comment/${commentId}`)
+    const confirmDelete = window.confirm('Are you sure you want to delete this comment?');
+    if (confirmDelete) {
+      deleteComment(commentId)
         .then(() => {
-          setComments((prevComments) =>
-            prevComments.filter((comment) => comment._id !== commentId)
-          );
+          fetchComments();
         })
         .catch((error) => {
           console.error('Error deleting comment:', error);
@@ -103,49 +73,36 @@ function CommentSection() {
   };
 
   const handleCommentEdit = (commentId, updatedContent) => {
-    axios
-      .put(`http://localhost:3005/comment/${commentId}`, { content: updatedContent })
+    if (updatedContent.trim() === '') return;
+
+    editComment(commentId, { content: updatedContent })
       .then(() => {
-        // Fetch the updated comments after successful edit
-        axios
-          .get('http://localhost:3005/comment/' + user._id)
-          .then(({ data }) => {
-            console.log('user comments', data);
-            setComments(data);
-          })
-          .catch((error) => {
-            console.error('Error fetching comments:', error);
-          });
+        setIsEditing(false);
+        setEditCommentId(null);
+        setEditCommentContent('');
+        fetchComments();
       })
       .catch((error) => {
         console.error('Error updating comment:', error);
       });
   };
 
-  const handleReply = (commentId) => {
-    const reply = {
+  const handleReplySubmit = (commentId) => {
+    if (replyContent.trim() === '') return;
+
+    const replyData = {
       content: replyContent,
       email: user.email,
-      userId: user._id,
-      createdAt: Date.now(),
+      createdAt: new Date().toISOString(),
     };
 
-    axios
-      .post(`http://localhost:3005/comment/${commentId}/reply`, reply)
+    addReply(commentId, replyData)
       .then(() => {
-        // Fetch the updated comments after successful reply
-        axios
-          .get('http://localhost:3005/comment/' + user._id)
-          .then(({ data }) => {
-            console.log('user comments', data);
-            setComments(data);
-          })
-          .catch((error) => {
-            console.error('Error fetching comments:', error);
-          });
+        setReplyContent('');
+        fetchComments();
       })
       .catch((error) => {
-        console.error('Error sending reply data:', error);
+        console.error('Error adding reply:', error);
       });
   };
 
@@ -154,26 +111,20 @@ function CommentSection() {
     navigate('/');
   }
 
-
   return (
     <div className="comments-container">
       <div className="header">
         <h2>Comments</h2>
-        <button
-          className="disconnect-btn"
-          onClick={() => {
-            disconnect();
-          }}
-        >
+        <button className="disconnect-btn" onClick={disconnect}>
           Disconnect
         </button>
       </div>
 
       <form onSubmit={handleCommentSubmit}>
         <textarea
-          name="content"
+          name="newComment"
           placeholder="Add a comment..."
-          value={newComment.content}
+          value={newComment}
           onChange={handleCommentChange}
         />
         <button className="submit-btn" type="submit">
@@ -182,92 +133,91 @@ function CommentSection() {
       </form>
 
       <div className="comment-section">
-        {comments.map((comment) => (
-          <div key={comment._id} className="comment-item">
-            <div className="user-date-container">
-              <p>{comment.email}</p>
-              <p>{comment.createdAt}</p>
-            </div>
-            <p className="comments"> {comment.content}</p>
-
-            {/* Edit Comments */}
-            {isEditing && editCommentId === comment._id ? (
-              <div className="edit-input-container">
-                <input
-                  type="text"
-                  value={editCommentContent}
-                  onChange={(e) => setEditCommentContent(e.target.value)}
-                />
-                <button
-                  onClick={() => {
-                    handleCommentEdit(comment._id, editCommentContent);
-                    setIsEditing(false);
-                    setEditCommentContent("");
-                    setEditCommentId(null);
-                  }}
-                >
-                  Save
-                </button>
+        {comments.map((comment) => {
+          console.log('Comment:', comment);
+          console.log('User:', user);
+          return (
+            <div key={comment._id} className="comment-item">
+              <div className="user-date-container">
+                <p>{comment.userId ? comment.userId.username : 'No user found'}</p>
+                <p>{comment.createdAt}</p>
               </div>
-            ) : (
-              <>
-                <button
-                  className="edit-btn"
-                  onClick={() => {
-                    setIsEditing(true);
-                    setEditCommentContent(comment.content);
-                    setEditCommentId(comment._id);
-                  }}
-                >
-                  Edit
-                </button>
-                <button
-                  className="delete-btn"
-                  onClick={() => handleCommentDelete(comment._id)}
-                >
-                  Delete
-                </button>
-              </>
-            )}
+              <p className="comment">{comment.content}</p>
 
-            {/* Render Replies */}
-            <div className="replies">
-              {comment.replies &&
-                comment.replies.map((reply) => (
-                  <div key={reply._id} className="reply-item">
-                    <div className="user-date-container">
-                      <p>{reply.email}</p>
-                      <p>{reply.createdAt}</p>
+              {isEditing && editCommentId === comment._id ? (
+                <div className="edit-input-container">
+                  <input
+                    type="text"
+                    value={editCommentContent}
+                    onChange={(e) => setEditCommentContent(e.target.value)}
+                  />
+                  <button
+                    onClick={() => {
+                      handleCommentEdit(comment._id, editCommentContent);
+                    }}
+                  >
+                    Save
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {comment.userId && comment.userId._id === user?._id && (
+                    <div className="buttons">
+                      <button
+                        className="edit-btn"
+                        onClick={() => {
+                          setIsEditing(true);
+                          setEditCommentId(comment._id);
+                          setEditCommentContent(comment.content);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleCommentDelete(comment._id)}
+                      >
+                        Delete
+                      </button>
                     </div>
-                    <p className="comments reply-comment">{reply.content}</p>
-                  </div>
-                ))}
-            </div>
+                  )}
 
-            {/* Reply Form */}
-            <form
-              onSubmit={(event) => {
-                event.preventDefault();
-                handleReply(comment._id);
-                setReplyContent("");
-              }}
-            >
-              <textarea
-                name="replyContent"
-                className="reply-form-container"
-                placeholder="Leave your reply here..."
-                value={replyContent}
-                onChange={(event) => setReplyContent(event.target.value)}
-              />
-              <button className="submit-btn" type="submit">
-                Submit Reply
-              </button>
-            </form>
-          </div>
-        ))}
+                  <form
+                    className="reply-form"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      handleReplySubmit(comment._id);
+                    }}
+                  >
+                    <textarea
+                      className="reply-input"
+                      placeholder="Write a reply..."
+                      value={replyContent}
+                      onChange={(e) => setReplyContent(e.target.value)}
+                    />
+                    <button className="reply-btn" type="submit">
+                      Reply
+                    </button>
+                  </form>
+
+                  {comment.replies &&
+                    comment.replies.map((reply) => (
+                      <div key={reply._id} className="reply-item">
+                        <div className="user-date-container">
+                          <p>{reply.userId ? reply.userId.username : 'No user found'}</p>
+                          <p>{reply.createdAt}</p>
+                        </div>
+                        <p className="comment">{reply.content}</p>
+                      </div>
+                    ))}
+                </>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-export default CommentSection;
+export default Comments;
