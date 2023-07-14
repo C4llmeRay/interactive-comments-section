@@ -45,7 +45,6 @@ function Comments() {
 
     const commentData = {
       content: newComment,
-      email: user.email,
       createdAt: new Date().toISOString(),
     };
 
@@ -88,23 +87,25 @@ function Comments() {
   };
 
   const handleReplySubmit = (commentId) => {
-    if (replyContent.trim() === '') return;
+  if (!user || replyContent.trim() === '') return;
 
-    const replyData = {
-      content: replyContent,
-      email: user.email,
-      createdAt: new Date().toISOString(),
-    };
-
-    addReply(commentId, replyData)
-      .then(() => {
-        setReplyContent('');
-        fetchComments();
-      })
-      .catch((error) => {
-        console.error('Error adding reply:', error);
-      });
+  const replyData = {
+    content: replyContent,
+    userId: user._id, // Pass the user ID instead of the email
+    createdAt: new Date().toISOString(),
   };
+
+  addReply(commentId, replyData)
+    .then(() => {
+      setReplyContent('');
+      fetchComments();
+    })
+    .catch((error) => {
+      console.error('Error adding reply:', error);
+    });
+};
+
+
 
   function disconnect() {
     localStorage.removeItem('token');

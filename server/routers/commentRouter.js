@@ -13,7 +13,7 @@ router.delete("/:id", authMiddleware, commentController.deleteComment);
 // Edit a comment by ID
 router.put("/:id", authMiddleware, commentController.editComment);
 // Get all comments for a specific user
-router.get("/user/:userId", commentController.getAllUserComments);
+router.get("/user/:userId", authMiddleware, commentController.getAllUserComments);
 // Post a reply to a comment
 router.post("/:commentId/reply", authMiddleware, commentController.postReply);
 // Delete a reply

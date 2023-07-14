@@ -37,7 +37,8 @@ const postOneComment = async (req, res) => {
     const { content } = req.body;
     const userId = req.user.id; // Retrieve the user ID from the authenticated request
     const newComment = await Comment.create({ content, userId });
-    res.send({ msg: "Comment posted successfully" });
+    res.send({ msg: "Comment posted successfully", comment: newComment });
+
   } catch (error) {
     console.error("Error creating comment:", error);
     res.status(500).send({ msg: "Failed to create comment" });
@@ -78,7 +79,8 @@ const editComment = async (req, res) => {
 // Get all comments for a specific user
 const getAllUserComments = async (req, res) => {
   try {
-    const userComments = await Comment.find({ userId: req.params.userId });
+    const userId = req.user.id; // Retrieve the user ID from the authenticated request
+    const userComments = await Comment.find({ userId });
     res.send(userComments);
   } catch (error) {
     console.error("Error fetching user comments:", error);

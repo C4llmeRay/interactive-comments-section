@@ -199,4 +199,4 @@ function AllCommentsSection() {
   );
 }
 
-export default AllCommentsSection;
+export default AllComments;
