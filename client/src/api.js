@@ -83,12 +83,24 @@ export const addReply = async (commentId, replyData) => {
 
 // Function to make a DELETE request to delete a reply
 export const deleteReply = (commentId, replyId) => {
-  return axios.delete(`${API_URL}/comment/${commentId}/reply/${replyId}`);
+  const config = {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+  };
+
+  return axios.delete(`${API_URL}/comment/${commentId}/reply/${replyId}`, config);
 };
 
 // Function to make a PUT request to edit a reply
 export const editReply = (commentId, replyId, content) => {
-  return axios.put(`${API_URL}/comment/${commentId}/reply/${replyId}`, { content });
+  const config = {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+  };
+
+  return axios.put(`${API_URL}/comment/${commentId}/reply/${replyId}`, { content }, config);
 };
 
 // Function to make a GET request to fetch all comments

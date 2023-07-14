@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAllComments, addComment, deleteComment, editComment, addReply, deleteReply, editReply } from '../api';
+import {
+  getAllComments,
+  addComment,
+  deleteComment,
+  editComment,
+  addReply,
+  deleteReply,
+  editReply
+} from '../api';
 
 function CommentSection() {
   const navigate = useNavigate();
   const [newComment, setNewComment] = useState('');
+  const [newReply, setNewReply] = useState('');
   const [comments, setComments] = useState([]);
-  const [user, setUser] = useState(null);
-  const [replyContent, setReplyContent] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-  const [editCommentId, setEditCommentId] = useState(null);
-  const [editCommentContent, setEditCommentContent] = useState('');
-  const [editReplyId, setEditReplyId] = useState(null);
-  const [editReplyContent, setEditReplyContent] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -28,9 +30,6 @@ function CommentSection() {
       .then((response) => {
         console.log('Comments response:', response);
         setComments(response.data);
-        if (response.user && response.user._id) {
-          setUser(response.user);
-        }
       })
       .catch((error) => {
         console.error('Error fetching comments:', error);
@@ -39,6 +38,10 @@ function CommentSection() {
 
   const handleCommentChange = (event) => {
     setNewComment(event.target.value);
+  };
+
+  const handleReplyChange = (event) => {
+    setNewReply(event.target.value);
   };
 
   const handleCommentSubmit = (event) => {
@@ -51,8 +54,8 @@ function CommentSection() {
     };
 
     addComment(commentData)
-      .then((response) => {
-        console.log('Add comment response:', response);
+      .then(() => {
+        console.log('Comment added successfully');
         setNewComment('');
         fetchComments();
       })
@@ -66,6 +69,7 @@ function CommentSection() {
     if (confirmDelete) {
       deleteComment(commentId)
         .then(() => {
+          console.log('Comment deleted successfully');
           fetchComments();
         })
         .catch((error) => {
@@ -79,9 +83,7 @@ function CommentSection() {
 
     editComment(commentId, { content: updatedContent })
       .then(() => {
-        setIsEditing(false);
-        setEditCommentId(null);
-        setEditCommentContent('');
+        console.log('Comment updated successfully');
         fetchComments();
       })
       .catch((error) => {
@@ -89,28 +91,31 @@ function CommentSection() {
       });
   };
 
-  const handleReplySubmit = (commentId, replyToId) => {
-  if (!user || replyContent.trim() === '') return;
+  const handleReplySubmit = (commentId) => {
+    if (newReply.trim() === '') return;
 
-  const replyData = {
-    content: replyContent,
-    userId: user._id,
-    createdAt: new Date().toISOString(),
+    const replyData = {
+      content: newReply,
+      createdAt: new Date().toISOString(),
+    };
+
+    addReply(commentId, replyData)
+      .then(() => {
+        console.log('Reply added successfully');
+        setNewReply(''); // Clear the reply input
+        fetchComments();
+      })
+      .catch((error) => {
+        console.error('Error adding reply:', error);
+      });
   };
 
-  addReply(commentId, replyToId, replyData)
-    .then(() => {
-      setReplyContent('');
-      fetchComments();
-    })
-    .catch((error) => {
-      console.error('Error adding reply:', error);
-    });
-};
-
   const handleReplyDelete = (commentId, replyId) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this reply?');
+    if (confirmDelete)
     deleteReply(commentId, replyId)
       .then(() => {
+        console.log('Reply deleted successfully');
         fetchComments();
       })
       .catch((error) => {
@@ -123,12 +128,11 @@ function CommentSection() {
 
     editReply(commentId, replyId, { content: updatedContent })
       .then(() => {
-        setEditReplyId(null);
-        setEditReplyContent('');
+        console.log('Reply updated successfully');
         fetchComments();
       })
       .catch((error) => {
-        console.error('Error editing reply:', error);
+        console.error('Error updating reply:', error);
       });
   };
 
@@ -137,8 +141,13 @@ function CommentSection() {
     navigate('/');
   }
 
+  const formatDateTime = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+    return new Date(dateString).toLocaleString(undefined, options);
+  };
+
   return (
-    <div className="comment-section">
+    <div className="comments-container">
       <div className="header">
         <h2>Comments</h2>
         <button className="disconnect-btn" onClick={disconnect}>
@@ -152,6 +161,7 @@ function CommentSection() {
           placeholder="Add a comment..."
           value={newComment}
           onChange={handleCommentChange}
+          className="comments"
         />
         <button className="submit-btn" type="submit">
           Submit
@@ -162,113 +172,73 @@ function CommentSection() {
         <div key={comment._id} className="comment-item">
           <div className="user-date-container">
             <p>{comment.userId ? comment.userId.username : 'No user found'}</p>
-            <p>{comment.createdAt}</p>
+            <p>{formatDateTime(comment.createdAt)}</p>
           </div>
           <p className="comment">{comment.content}</p>
 
-          {isEditing && editCommentId === comment._id ? (
-            <div className="edit-input-container">
-              <input
-                type="text"
-                value={editCommentContent}
-                onChange={(e) => setEditCommentContent(e.target.value)}
-              />
-              <button
-                onClick={() => {
-                  handleCommentEdit(comment._id, editCommentContent);
-                }}
-              >
-                Save
-              </button>
-            </div>
-          ) : (
-            <>
-              {comment.userId && comment.userId._id === user?._id && (
+          <div className="buttons">
+            <button
+              className="edit-btn"
+              onClick={() => {
+                const updatedContent = prompt('Enter the updated comment content:');
+                handleCommentEdit(comment._id, updatedContent);
+              }}
+            >
+              Edit
+            </button>
+            <button
+              className="delete-btn"
+              onClick={() => handleCommentDelete(comment._id)}
+            >
+              Delete
+            </button>
+          </div>
+
+          <form
+        className="reply-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          handleReplySubmit(comment._id);
+        }}
+      >
+        <textarea
+          className="reply-comment"
+          placeholder="Write a reply..."
+          value={newReply}
+          onChange={handleReplyChange}
+        />
+        <button className="reply-btn" type="submit">
+          Reply
+        </button>
+      </form>
+
+          {comment.replies &&
+            comment.replies.map((reply) => (
+              <div key={reply._id} className="reply-item">
+                <div className="user-date-container">
+                  <p>{reply.userId ? reply.userId.username : 'No user found'}</p>
+                  <p>{formatDateTime(reply.createdAt)}</p>
+                </div>
+                <p className="comment">{reply.content}</p>
                 <div className="buttons">
                   <button
                     className="edit-btn"
                     onClick={() => {
-                      setIsEditing(true);
-                      setEditCommentId(comment._id);
-                      setEditCommentContent(comment.content);
+                      const updatedContent = prompt('Enter the updated reply content:');
+                      handleReplyEdit(comment._id, reply._id, updatedContent);
                     }}
                   >
                     Edit
                   </button>
                   <button
                     className="delete-btn"
-                    onClick={() => handleCommentDelete(comment._id)}
+                    onClick={() => handleReplyDelete(comment._id, reply._id)}
                   >
                     Delete
                   </button>
                 </div>
-              )}
-
-              <form
-                className="reply-form"
-                onSubmit={(event) => {
-                event.preventDefault();
-                handleReplySubmit(comment._id, comment._id); // Pass both commentId and replyToId
-               }}
-              >
-                <textarea
-                  className="reply-input"
-                  placeholder="Write a reply..."
-                  value={replyContent}
-                  onChange={(e) => setReplyContent(e.target.value)}
-                />
-                <button className="reply-btn" type="submit">
-                  Reply
-                </button>
-              </form>
-
-              {comment.replies &&
-                comment.replies.map((reply) => (
-                  <div key={reply._id} className="reply-item">
-                    <div className="user-date-container">
-                      <p>{reply.userId ? reply.userId.username : 'No user found'}</p>
-                      <p>{reply.createdAt}</p>
-                    </div>
-                    <p className="comment">{reply.content}</p>
-                    {reply.userId && reply.userId._id === user?._id && (
-                      <div className="buttons">
-                        <button
-                          className="edit-btn"
-                          onClick={() => {
-                            setEditReplyId(reply._id);
-                            setEditReplyContent(reply.content);
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="delete-btn"
-                          onClick={() => handleReplyDelete(comment._id, reply._id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                    {isEditing && editReplyId === reply._id && (
-                      <div className="edit-input-container">
-                        <input
-                          type="text"
-                          value={editReplyContent}
-                          onChange={(e) => setEditReplyContent(e.target.value)}
-                        />
-                        <button
-                          onClick={() => {
-                            handleReplyEdit(comment._id, reply._id, editReplyContent);
-                          }}
-                        >
-                          Save
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-            </>
-          )}
+              </div>
+            ))}
         </div>
       ))}
     </div>
