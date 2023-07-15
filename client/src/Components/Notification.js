@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getUserNotifications, markNotificationAsRead, deleteNotification, getOneComment } from '../api';
-import '../Styles/Notification.css'
+import '../Styles/Notification.css';
 
 function Notification() {
   const [notifications, setNotifications] = useState([]);
@@ -86,6 +86,18 @@ function Notification() {
           return `You have a new reply to your comment: ${commentContent}`;
         } else {
           return 'You have a new reply to your comment.';
+        }
+      case 'like':
+        if (commentContent) {
+          return `User liked your comment: ${commentContent}`;
+        } else {
+          return 'User liked your comment.';
+        }
+      case 'dislike':
+        if (commentContent) {
+          return `User disliked your comment: ${commentContent}`;
+        } else {
+          return 'User disliked your comment.';
         }
       default:
         return 'New notification';

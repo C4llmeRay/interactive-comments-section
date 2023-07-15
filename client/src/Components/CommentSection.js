@@ -19,12 +19,14 @@ function CommentSection() {
   const [newComment, setNewComment] = useState('');
   const [newReply, setNewReply] = useState('');
   const [comments, setComments] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('token') !== null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/');
     } else {
+      setIsLoggedIn(true);
       fetchComments();
     }
   }, [navigate]);
@@ -50,6 +52,12 @@ function CommentSection() {
   const handleCommentSubmit = (event) => {
     event.preventDefault();
     if (newComment.trim() === '') return;
+
+    if (!isLoggedIn) {
+      alert('You need to login to be able to add comments. Login here');
+      navigate('/login');
+      return;
+    }
 
     const commentData = {
       content: newComment,
@@ -185,9 +193,11 @@ function CommentSection() {
   };
 
   function disconnect() {
-    localStorage.removeItem('token');
-    navigate('/');
-  }
+  localStorage.removeItem('token');
+  setIsLoggedIn(false);
+  navigate('/');
+}
+
 
   const formatDateTime = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
@@ -197,11 +207,17 @@ function CommentSection() {
   return (
     <div className="comments-container">
       <div className="header">
-        <h2 className="comments-title">Comments</h2>
+      <h2 className="comments-title">Comments</h2>
+      {isLoggedIn ? (
         <button className="disconnect-btn" onClick={disconnect}>
-          Disconnect
+      Disconnect
         </button>
-      </div>
+   ) : (
+    <button className="login-btn" onClick={() => navigate('/login')}>
+      Login
+    </button>
+      )}
+   </div>
 
       <form onSubmit={handleCommentSubmit} className="comment-form">
         <textarea

@@ -3,13 +3,15 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 import { getUserNotifications } from '../api';
-import '../Styles/Navbar.css'
+import '../Styles/Navbar.css';
 
 function Navbar({ isLoggedIn }) {
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
 
   useEffect(() => {
     checkUnreadNotifications();
+    const notificationCheckInterval = setInterval(checkUnreadNotifications, 60000); // Check every minute 
+    return () => clearInterval(notificationCheckInterval);
   }, []);
 
   const checkUnreadNotifications = () => {

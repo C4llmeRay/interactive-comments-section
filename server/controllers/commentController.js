@@ -171,38 +171,33 @@ const editReply = async (req, res) => {
   }
 };
 
-// Like a comment
 const likeComment = async (req, res) => {
   const commentId = req.params.commentId;
   const userId = req.user.id;
 
   try {
-    const comment = await Comment.findById(commentId);
+    const comment = await Comment.findById(commentId).populate('userId');
 
     if (!comment) {
-      return res.status(404).send({ msg: "Comment not found" });
+      return res.status(404).send({ msg: 'Comment not found' });
     }
 
-    const existingLikeIndex = comment.likes.findIndex((like) => like.userId === userId);
+    const existingLike = comment.likes.find((like) => like.userId.toString() === userId);
 
-    if (existingLikeIndex > -1) {
+    if (existingLike) {
       // User already liked the comment, remove the like
-      comment.likes.splice(existingLikeIndex, 1);
+      comment.likes = comment.likes.filter((like) => like.userId.toString() !== userId);
     } else {
-      const existingDislikeIndex = comment.dislikes.findIndex((dislike) => dislike.userId === userId);
-      if (existingDislikeIndex > -1) {
-        // User disliked the comment, remove the dislike
-        comment.dislikes.splice(existingDislikeIndex, 1);
-      }
-
       // User has not liked the comment, add the like
       comment.likes.push({ userId });
 
       // Create notification for the comment owner
       const notification = new Notification({
         userId: comment.userId,
-        type: "like",
+        type: 'like',
         commentId: comment._id,
+        content: comment.content,
+        performer: req.user.username,
       });
 
       await notification.save();
@@ -211,43 +206,38 @@ const likeComment = async (req, res) => {
     await comment.save();
     res.send(comment);
   } catch (error) {
-    console.error("Error liking comment:", error);
-    res.status(500).send({ msg: "Failed to like comment" });
+    console.error('Error liking comment:', error);
+    res.status(500).send({ msg: 'Failed to like comment' });
   }
 };
 
-// Dislike a comment
 const dislikeComment = async (req, res) => {
   const commentId = req.params.commentId;
   const userId = req.user.id;
 
   try {
-    const comment = await Comment.findById(commentId);
+    const comment = await Comment.findById(commentId).populate('userId');
 
     if (!comment) {
-      return res.status(404).send({ msg: "Comment not found" });
+      return res.status(404).send({ msg: 'Comment not found' });
     }
 
-    const existingDislikeIndex = comment.dislikes.findIndex((dislike) => dislike.userId === userId);
+    const existingDislike = comment.dislikes.find((dislike) => dislike.userId.toString() === userId);
 
-    if (existingDislikeIndex > -1) {
+    if (existingDislike) {
       // User already disliked the comment, remove the dislike
-      comment.dislikes.splice(existingDislikeIndex, 1);
+      comment.dislikes = comment.dislikes.filter((dislike) => dislike.userId.toString() !== userId);
     } else {
-      const existingLikeIndex = comment.likes.findIndex((like) => like.userId === userId);
-      if (existingLikeIndex > -1) {
-        // User liked the comment, remove the like
-        comment.likes.splice(existingLikeIndex, 1);
-      }
-
       // User has not disliked the comment, add the dislike
       comment.dislikes.push({ userId });
 
       // Create notification for the comment owner
       const notification = new Notification({
         userId: comment.userId,
-        type: "dislike",
+        type: 'dislike',
         commentId: comment._id,
+        content: comment.content,
+        performer: req.user.username,
       });
 
       await notification.save();
@@ -256,10 +246,11 @@ const dislikeComment = async (req, res) => {
     await comment.save();
     res.send(comment);
   } catch (error) {
-    console.error("Error disliking comment:", error);
-    res.status(500).send({ msg: "Failed to dislike comment" });
+    console.error('Error disliking comment:', error);
+    res.status(500).send({ msg: 'Failed to dislike comment' });
   }
 };
+
 
 
 
