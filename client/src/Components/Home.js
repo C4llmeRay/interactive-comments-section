@@ -1,9 +1,10 @@
 import React from 'react';
+import CommentSection from './CommentSection';
 
 function Home() {
   return (
     <div>
-      <h2>This is Home</h2>
+      <CommentSection />
     </div>
   );
 }

@@ -1,7 +1,29 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBell } from '@fortawesome/free-solid-svg-icons';
+import { getUserNotifications } from '../api';
+import '../Styles/Navbar.css'
 
 function Navbar({ isLoggedIn }) {
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
+
+  useEffect(() => {
+    checkUnreadNotifications();
+  }, []);
+
+  const checkUnreadNotifications = () => {
+    getUserNotifications()
+      .then((response) => {
+        const notifications = response.data;
+        const hasUnread = notifications.some((notification) => !notification.read);
+        setHasUnreadNotifications(hasUnread);
+      })
+      .catch((error) => {
+        console.error('Error fetching notifications:', error);
+      });
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container">
@@ -28,12 +50,22 @@ function Navbar({ isLoggedIn }) {
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/userComments">
-                MyComments
+                My Comments
               </Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/profile">
                 {isLoggedIn ? 'Profile' : 'Login'}
+              </Link>
+            </li>
+          </ul>
+          <ul className="navbar-nav ms-auto">
+            <li className="nav-item">
+              <Link className="nav-link" to="/notification">
+                <FontAwesomeIcon
+                  icon={faBell}
+                  className={hasUnreadNotifications ? 'notification-icon active' : 'notification-icon'}
+                />
               </Link>
             </li>
           </ul>

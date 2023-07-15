@@ -7,6 +7,7 @@ import Profile from "./Components/Profile";
 import Home from "./Components/Home";
 import Navbar from "./Components/Navbar";
 import CommentSection from "./Components/CommentSection";
+import Notification from "./Components/Notification";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <div>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/notification" element={<Notification />} />
             <Route path="/login" element={<Login />} />
             <Route path="/commentSection" element={<CommentSection />} />
             <Route path="/signup" element={<Signup />} />

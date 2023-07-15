@@ -7,7 +7,7 @@ import {
   editComment,
   addReply,
   deleteReply,
-  editReply
+  editReply,
 } from '../api';
 
 function CommentSection() {
@@ -102,7 +102,7 @@ function CommentSection() {
     addReply(commentId, replyData)
       .then(() => {
         console.log('Reply added successfully');
-        setNewReply(''); // Clear the reply input
+        setNewReply('');
         fetchComments();
       })
       .catch((error) => {
@@ -113,14 +113,14 @@ function CommentSection() {
   const handleReplyDelete = (commentId, replyId) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this reply?');
     if (confirmDelete)
-    deleteReply(commentId, replyId)
-      .then(() => {
-        console.log('Reply deleted successfully');
-        fetchComments();
-      })
-      .catch((error) => {
-        console.error('Error deleting reply:', error);
-      });
+      deleteReply(commentId, replyId)
+        .then(() => {
+          console.log('Reply deleted successfully');
+          fetchComments();
+        })
+        .catch((error) => {
+          console.error('Error deleting reply:', error);
+        });
   };
 
   const handleReplyEdit = (commentId, replyId, updatedContent) => {
@@ -134,6 +134,17 @@ function CommentSection() {
       .catch((error) => {
         console.error('Error updating reply:', error);
       });
+  };
+
+  const handleShowAllReplies = (commentId) => {
+    setComments((prevComments) => {
+      return prevComments.map((comment) => {
+        if (comment._id === commentId) {
+          return { ...comment, showAllReplies: true };
+        }
+        return comment;
+      });
+    });
   };
 
   function disconnect() {
@@ -186,33 +197,39 @@ function CommentSection() {
             >
               Edit
             </button>
-            <button
-              className="delete-btn"
-              onClick={() => handleCommentDelete(comment._id)}
-            >
+            <button className="delete-btn" onClick={() => handleCommentDelete(comment._id)}>
               Delete
             </button>
           </div>
 
           <form
-        className="reply-form"
-        onSubmit={(event) => {
-          event.preventDefault();
-          handleReplySubmit(comment._id);
-        }}
-      >
-        <textarea
-          className="reply-comment"
-          placeholder="Write a reply..."
-          value={newReply}
-          onChange={handleReplyChange}
-        />
-        <button className="reply-btn" type="submit">
-          Reply
-        </button>
-      </form>
+            className="reply-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              handleReplySubmit(comment._id);
+            }}
+          >
+            <textarea
+              className="reply-comment"
+              placeholder="Write a reply..."
+              value={newReply}
+              onChange={handleReplyChange}
+            />
+            <button className="reply-btn" type="submit">
+              Reply
+            </button>
+          </form>
 
-          {comment.replies &&
+          {comment.replies && comment.replies.length > 0 && !comment.showAllReplies && (
+            <button
+              className="show-replies-btn"
+              onClick={() => handleShowAllReplies(comment._id)}
+            >
+              Show all replies ({comment.replies.length})
+            </button>
+          )}
+
+          {comment.showAllReplies &&
             comment.replies.map((reply) => (
               <div key={reply._id} className="reply-item">
                 <div className="user-date-container">

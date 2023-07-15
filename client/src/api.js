@@ -33,6 +33,11 @@ export const getUserComments = (userId) => {
   });
 };
 
+export const getOneComment = (commentId) => {
+  return axios.get(`${API_URL}/comment/${commentId}`);
+};
+
+
 // Function to make a POST request to add a new comment
 export const addComment = async (commentData) => {
   try {
@@ -129,3 +134,19 @@ export const updateUserProfile = (profileData) => {
     },
   });
 };
+
+// Get user notifications
+export const getUserNotifications = () => {
+  return axios.get(`${API_URL}/notifications`, getConfig());
+};
+
+// Mark notification as read
+export const markNotificationAsRead = (notificationId) => {
+  return axios.put(`${API_URL}/notifications/${notificationId}/mark-as-read`, null, getConfig());
+};
+
+// Delete notification
+export const deleteNotification = (notificationId) => {
+  return axios.delete(`${API_URL}/notifications/${notificationId}`, getConfig());
+};
+

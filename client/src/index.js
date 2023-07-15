@@ -4,6 +4,8 @@ import './Styles/index.css';
 import App from './App';
 import "./Styles/Comments.css"
 import "./Styles/Login-Signup.css"
+import 'bootstrap/dist/css/bootstrap.css';
+
 
 
 
