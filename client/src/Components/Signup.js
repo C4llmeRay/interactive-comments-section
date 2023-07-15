@@ -10,7 +10,7 @@ function Signup() {
   const [password, setPassword] = useState("");
 
   function toLogin() {
-    navigate("/");
+    navigate("/login");
   }
 
   function handleSignup() {
@@ -18,7 +18,7 @@ function Signup() {
       .then(({ data }) => {
         if (data.token) {
           localStorage.setItem("token", data.token);
-          navigate("/comments");
+          navigate("/");
         } else {
           alert(data.msg);
         }
@@ -62,9 +62,10 @@ function Signup() {
       </div>
       <p className="info-text">
         If you have an account{" "}
-        <a className="signup-login-anchor" onClick={toLogin}>
-          Login
-        </a>
+        {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+      <a href="#" className="signup-login-anchor" onClick={toLogin}>
+      Login
+      </a>
       </p>
     </div>
   );

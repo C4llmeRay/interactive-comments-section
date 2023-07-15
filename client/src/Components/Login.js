@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { login } from "../api";
+import '../Styles/Login.css'
 
 function Login() {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ function Login() {
 
   return (
     <div className="signup-login-container">
-      <h1 className="app-title">Comment Section</h1>
+      <h1 className="app-title">LOGIN</h1>
       <div className="input-button-container">
         <input
           type="email"

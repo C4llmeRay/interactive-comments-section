@@ -1,85 +1,183 @@
 .comments-container {
-    max-width: 60%;
-    margin: 0 auto;
-    padding: 1.5rem;
-    background-color: #f5f6fa;
-    box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.2);
-  }
-  
-  .hide-section {
-    display: none;
-  }
-
-  .header{
-    display:flex;
-    justify-content: space-between;
-  }
-
-  .submit-btn{
-    margin-top:1rem;
-  }
-
-  button{
-    padding: 0.5625rem 0.9375rem;
-    border-radius: 0.3125rem;
-    color: #fff;
-    font-size: 1rem;
-    cursor: pointer;
-    border: none;
-    background-color: #2e5ca7ec;
-  }
-
-  .disconnect-btn {
-    border-radius: 0.3125rem;
-    color: #fff;
-    font-size: 1.2rem;
-    cursor: pointer;
-    border: none;
-    background-color: #e71c1c;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .edit-btn{
-    background-color: green;
-  }
-
-  .delete-btn{
-    background-color: #e71c1c;
-    margin-left: 1rem;
-  }
-
-
-  input,
- .comments,
- textarea {
+  max-width: 80%;
+  margin: 2rem auto;
   padding: 1.5rem;
-  border: none;
-  width: 80%;
-  border-radius: 0.625rem;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1);
-  background-color: #ffffff;
+  background-color: #f5f6fa;
+  box-shadow: 0 0 0.625rem rgba(0, 0, 0, 0.2);
 }
 
-.user-date-container{
-    display: flex;
-    gap: 1rem;
-    margin-bottom: -1.8rem;
-}
-
-.edit-input-container{
+.header {
   display: flex;
-  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
-.reply-comment{
-    width:60%;
-  }
 
-  .reply-form-container{
-    margin-top: 1rem;
-  }
+.comments-title {
+  font-size: 1.5rem;
+  color: #333;
+}
 
-  ::placeholder {
-    color: #3a3a3a;
-    font-size: 1.1rem
-    }
+.disconnect-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #e71c1c;
+  border: none;
+  cursor: pointer;
+}
+
+.comment-form {
+  margin-bottom: 1rem;
+}
+
+.comment-input {
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  width: 100%;
+  font-size: 1rem;
+}
+
+.submit-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #2e5ca7ec;
+  border: none;
+  cursor: pointer;
+}
+
+.comment-item {
+  margin-bottom: 2rem;
+}
+
+.user-date-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.comment-user {
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+.comment-date {
+  color: #666;
+}
+
+.comment-content {
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.edit-btn {
+  background-color: #28a745;
+  margin-right: 0.5rem;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+}
+
+.reply-form {
+  margin-top: 1rem;
+}
+
+.reply-input {
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  width: 100%;
+  font-size: 1rem;
+}
+
+.reply-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  cursor: pointer;
+}
+
+.show-replies-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
+  color: #007bff;
+  background-color: transparent;
+  border: 1px solid #007bff;
+  cursor: pointer;
+}
+
+.reply-item {
+  margin-left: 2rem;
+  padding-left: 1rem;
+  border-left: 1px solid #ccc;
+}
+
+.reply-user {
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+.reply-date {
+  color: #666;
+}
+
+.reply-content {
+  padding: 1rem;
+  background-color: #f5f6fa;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-bottom: 1rem;
+}
+
+.like-btn,
+.dislike-btn {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  color: #333;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.like-icon,
+.dislike-icon {
+  margin-right: 0.5rem;
+}
+
+.like-count,
+.dislike-count {
+  margin-right: 0.5rem;
+  color: #333;
+}

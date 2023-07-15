@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getUserProfile, updateUserProfile } from '../api';
-import UserComments from './UserComments';
 import { Link } from 'react-router-dom';
+import UserComments from './UserComments';
+import '../Styles/Profile.css';
 
 function Profile() {
   const [user, setUser] = useState(null);
@@ -79,7 +80,9 @@ function Profile() {
         <>
           <button onClick={handleUpdateModeToggle}>Update Profile</button>
           <h3>My Comments</h3>
-          <UserComments />
+         
+            <UserComments />
+          
         </>
       )}
 

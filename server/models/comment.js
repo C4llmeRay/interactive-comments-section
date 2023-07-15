@@ -29,10 +29,18 @@ const commentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  upvotes: {
-    type: Number,
-    default: 0,
-  },
+  likes: [{
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  }],
+  dislikes: [{
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
+  }],
   replies: {
     type: [replySchema],
     default: [],

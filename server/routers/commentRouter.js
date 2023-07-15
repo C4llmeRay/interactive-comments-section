@@ -20,6 +20,10 @@ router.post("/:commentId/reply", authMiddleware, commentController.postReply);
 router.delete("/:commentId/reply/:replyId", authMiddleware, commentController.deleteReply);
 // Edit a reply
 router.put("/:commentId/reply/:replyId", authMiddleware, commentController.editReply);
+// Like a comment
+router.post("/:commentId/like", authMiddleware, commentController.likeComment);
+// Dislike a comment
+router.post("/:commentId/dislike", authMiddleware, commentController.dislikeComment);
 
 
 module.exports = router;

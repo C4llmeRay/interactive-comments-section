@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faThumbsUp, faThumbsDown } from '@fortawesome/free-solid-svg-icons';
 import {
   getAllComments,
   addComment,
@@ -8,6 +10,8 @@ import {
   addReply,
   deleteReply,
   editReply,
+  likeComment,
+  dislikeComment,
 } from '../api';
 
 function CommentSection() {
@@ -28,7 +32,6 @@ function CommentSection() {
   const fetchComments = () => {
     getAllComments()
       .then((response) => {
-        console.log('Comments response:', response);
         setComments(response.data);
       })
       .catch((error) => {
@@ -51,6 +54,8 @@ function CommentSection() {
     const commentData = {
       content: newComment,
       createdAt: new Date().toISOString(),
+      likes: [],
+      dislikes: [],
     };
 
     addComment(commentData)
@@ -136,6 +141,38 @@ function CommentSection() {
       });
   };
 
+  const handleLikeComment = (commentId) => {
+    likeComment(commentId)
+      .then((response) => {
+        const updatedComments = comments.map((comment) => {
+          if (comment._id === commentId) {
+            return response.data;
+          }
+          return comment;
+        });
+        setComments(updatedComments);
+      })
+      .catch((error) => {
+        console.error('Error liking comment:', error);
+      });
+  };
+
+  const handleDislikeComment = (commentId) => {
+    dislikeComment(commentId)
+      .then((response) => {
+        const updatedComments = comments.map((comment) => {
+          if (comment._id === commentId) {
+            return response.data;
+          }
+          return comment;
+        });
+        setComments(updatedComments);
+      })
+      .catch((error) => {
+        console.error('Error disliking comment:', error);
+      });
+  };
+
   const handleShowAllReplies = (commentId) => {
     setComments((prevComments) => {
       return prevComments.map((comment) => {
@@ -160,19 +197,19 @@ function CommentSection() {
   return (
     <div className="comments-container">
       <div className="header">
-        <h2>Comments</h2>
+        <h2 className="comments-title">Comments</h2>
         <button className="disconnect-btn" onClick={disconnect}>
           Disconnect
         </button>
       </div>
 
-      <form onSubmit={handleCommentSubmit}>
+      <form onSubmit={handleCommentSubmit} className="comment-form">
         <textarea
           name="newComment"
           placeholder="Add a comment..."
           value={newComment}
           onChange={handleCommentChange}
-          className="comments"
+          className="comment-input"
         />
         <button className="submit-btn" type="submit">
           Submit
@@ -182,10 +219,21 @@ function CommentSection() {
       {comments.map((comment) => (
         <div key={comment._id} className="comment-item">
           <div className="user-date-container">
-            <p>{comment.userId ? comment.userId.username : 'No user found'}</p>
-            <p>{formatDateTime(comment.createdAt)}</p>
+            <p className="comment-user">{comment.userId ? comment.userId.username : 'No user found'}</p>
+            <p className="comment-date">{formatDateTime(comment.createdAt)}</p>
           </div>
-          <p className="comment">{comment.content}</p>
+          <p className="comment-content">{comment.content}</p>
+
+          <div className="buttons">
+            <button className="like-btn" onClick={() => handleLikeComment(comment._id)}>
+              <FontAwesomeIcon icon={faThumbsUp} />
+            </button>
+            <span>{comment.likes.length}</span>
+            <button className="dislike-btn" onClick={() => handleDislikeComment(comment._id)}>
+              <FontAwesomeIcon icon={faThumbsDown} />
+            </button>
+            <span>{comment.dislikes.length}</span>
+          </div>
 
           <div className="buttons">
             <button
@@ -210,7 +258,7 @@ function CommentSection() {
             }}
           >
             <textarea
-              className="reply-comment"
+              className="reply-input"
               placeholder="Write a reply..."
               value={newReply}
               onChange={handleReplyChange}
@@ -221,10 +269,7 @@ function CommentSection() {
           </form>
 
           {comment.replies && comment.replies.length > 0 && !comment.showAllReplies && (
-            <button
-              className="show-replies-btn"
-              onClick={() => handleShowAllReplies(comment._id)}
-            >
+            <button className="show-replies-btn" onClick={() => handleShowAllReplies(comment._id)}>
               Show all replies ({comment.replies.length})
             </button>
           )}
@@ -233,10 +278,10 @@ function CommentSection() {
             comment.replies.map((reply) => (
               <div key={reply._id} className="reply-item">
                 <div className="user-date-container">
-                  <p>{reply.userId ? reply.userId.username : 'No user found'}</p>
-                  <p>{formatDateTime(reply.createdAt)}</p>
+                  <p className="reply-user">{reply.userId ? reply.userId.username : 'No user found'}</p>
+                  <p className="reply-date">{formatDateTime(reply.createdAt)}</p>
                 </div>
-                <p className="comment">{reply.content}</p>
+                <p className="reply-content">{reply.content}</p>
                 <div className="buttons">
                   <button
                     className="edit-btn"

@@ -150,3 +150,13 @@ export const deleteNotification = (notificationId) => {
   return axios.delete(`${API_URL}/notifications/${notificationId}`, getConfig());
 };
 
+// Like a comment
+export const likeComment = (commentId) => {
+  return axios.post(`${API_URL}/comment/${commentId}/like`, null, getConfig());
+};
+
+// Dislike a comment
+export const dislikeComment = (commentId) => {
+  return axios.post(`${API_URL}/comment/${commentId}/dislike`, null, getConfig());
+};
+

@@ -1,5 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Comments from "./Components/Comments"
+import { BrowserRouter as Router, Route, Routes, Navigate  } from "react-router-dom";
 import Login from "./Components/Login";
 import Signup from "./Components/Signup";
 import UserComments from "./Components/UserComments";
@@ -21,9 +20,9 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/commentSection" element={<CommentSection />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/comments" element={<Comments />} />
             <Route path="/userComments" element={<UserComments />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/*" element={<Navigate to="/" />} />
 
           </Routes>
         </div>

@@ -27,9 +27,6 @@ function Navbar({ isLoggedIn }) {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container">
-        <Link className="navbar-brand" to="/">
-          My App
-        </Link>
         <button
           className="navbar-toggler"
           type="button"
@@ -55,7 +52,7 @@ function Navbar({ isLoggedIn }) {
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/profile">
-                {isLoggedIn ? 'Profile' : 'Login'}
+                Profile
               </Link>
             </li>
           </ul>
